@@ -1918,7 +1918,9 @@ static int cfg80211_rtw_get_key(struct wiphy *wiphy, struct net_device *ndev
 			#endif
 			}
 		}
-	} else {
+	} 
+	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) || defined(COMPAT_KERNEL_RELEASE)
+	else {
 		/* Pairwise key, RX GTK/IGTK for specific peer */
 		sta = rtw_get_stainfo(stapriv, mac_addr);
 		if (!sta)
@@ -1946,6 +1948,7 @@ static int cfg80211_rtw_get_key(struct wiphy *wiphy, struct net_device *ndev
 		#endif /* CONFIG_RTW_MESH */
 		}
 	}
+	#endif
 
 	if (!key)
 		goto exit;
@@ -2319,9 +2322,12 @@ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
 	sinfo->filled |= STATION_INFO_TX_PACKETS;
 	sinfo->tx_packets = psta->sta_stats.tx_pkts;
 
+	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) || defined(COMPAT_KERNEL_RELEASE)
         sinfo->filled |= STATION_INFO_TX_FAILED;
         sinfo->tx_failed = psta->sta_stats.tx_fail_cnt;
+	#endif
 
+	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0))
 	sinfo->filled |= STATION_INFO_BSS_PARAM;
 
 	if (!psta->no_short_preamble_set)
@@ -2332,13 +2338,14 @@ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
 
 	/* no idea how to check this yet */
 	if (0)
-	sinfo->bss_param.flags |= STATION_INFO_BSS_PARAM_CTS_PROT;
+		sinfo->bss_param.flags |= STATION_INFO_BSS_PARAM_CTS_PROT;
 
 	/* is this actually the dtim_period? */
 	sinfo->bss_param.flags |= STATION_INFO_BSS_PARAM_DTIM_PERIOD;
 	sinfo->bss_param.dtim_period = pwrctl->dtim;
 
 	sinfo->bss_param.beacon_interval = get_beacon_interval(&cur_network->network);
+	#endif
 
 	}
 
@@ -2355,8 +2362,11 @@ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
 		sinfo->rx_packets = sta_rx_data_pkts(psta);
 		sinfo->filled |= STATION_INFO_TX_PACKETS;
 		sinfo->tx_packets = psta->sta_stats.tx_pkts;
+		
+		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) || defined(COMPAT_KERNEL_RELEASE)
 		sinfo->filled |= STATION_INFO_TX_FAILED;
 		sinfo->tx_failed = psta->sta_stats.tx_fail_cnt;
+		#endif
 	}
 
 #ifdef CONFIG_RTW_MESH
@@ -3403,9 +3413,13 @@ static int rtw_cfg80211_set_auth_type(struct security_priv *psecuritypriv,
 
 
 		break;
+		
+	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0))
 	case NL80211_AUTHTYPE_SAE:
 		psecuritypriv->auth_alg = WLAN_AUTH_SAE;
 		break;
+	#endif
+	
 	default:
 		psecuritypriv->dot11AuthAlgrthm = dot11AuthAlgrthm_Open;
 		/* return -ENOTSUPP; */
@@ -4950,7 +4964,11 @@ static int cfg80211_rtw_del_virtual_intf(struct wiphy *wiphy,
 	/* unregister only monitor device
 	 * because only monitor can be added
 	 */
+	 
+	 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0))
 	if(wdev->iftype == NL80211_IFTYPE_MONITOR)
+#endif
 		unregister_netdevice(ndev);
 			pwdev_priv->pmon_ndev = NULL;
 			pwdev_priv->ifname_mon[0] = '\0';
@@ -9690,8 +9708,10 @@ struct ieee80211_supported_band *band;
 	wiphy->features |= NL80211_FEATURE_SAE;
 #endif
 
+#if (KERNEL_VERSION(2, 6, 38) <= LINUX_VERSION_CODE)
 	wiphy->available_antennas_tx = hal_spec->tx_nss_num;
 	wiphy->available_antennas_rx = hal_spec->rx_nss_num;
+#endif
 
 if (IsSupported24G(adapter->registrypriv.wireless_mode)) {
 		band = wiphy->bands[NL80211_BAND_2GHZ];

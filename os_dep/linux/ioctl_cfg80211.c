@@ -1868,7 +1868,9 @@ static int cfg80211_rtw_get_key(struct wiphy *wiphy, struct net_device *ndev
 			#endif
 			}
 		}
-	} else {
+	} 
+	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) || defined(COMPAT_KERNEL_RELEASE)
+	else {
 		/* Pairwise key, RX GTK/IGTK for specific peer */
 		sta = rtw_get_stainfo(stapriv, mac_addr);
 		if (!sta)
@@ -1896,6 +1898,7 @@ static int cfg80211_rtw_get_key(struct wiphy *wiphy, struct net_device *ndev
 		#endif /* CONFIG_RTW_MESH */
 		}
 	}
+	#endif
 
 	if (!key)
 		goto exit;
@@ -2257,8 +2260,11 @@ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
 		sinfo->rx_packets = sta_rx_data_pkts(psta);
 		sinfo->filled |= STATION_INFO_TX_PACKETS;
 		sinfo->tx_packets = psta->sta_stats.tx_pkts;
+		
+		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) || defined(COMPAT_KERNEL_RELEASE)
 		sinfo->filled |= STATION_INFO_TX_FAILED;
 		sinfo->tx_failed = psta->sta_stats.tx_fail_cnt;
+		#endif
 	}
 
 #ifdef CONFIG_RTW_MESH
@@ -3293,9 +3299,12 @@ static int rtw_cfg80211_set_auth_type(struct security_priv *psecuritypriv,
 
 
 		break;
+		
+	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0))
 	case NL80211_AUTHTYPE_SAE:
 		psecuritypriv->auth_alg = WLAN_AUTH_SAE;
 		break;
+	#endif
 	default:
 		psecuritypriv->dot11AuthAlgrthm = dot11AuthAlgrthm_Open;
 		/* return -ENOTSUPP; */

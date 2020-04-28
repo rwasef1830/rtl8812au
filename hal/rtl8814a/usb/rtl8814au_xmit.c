@@ -17,6 +17,7 @@
 /* #include <drv_types.h> */
 #include <rtl8814a_hal.h>
 
+void rtl8814a_fill_txdesc_force_bmc_camid(struct pkt_attrib *pattrib, u8 *ptxdesc);
 
 s32	rtl8814au_init_xmit_priv(_adapter *padapter)
 {

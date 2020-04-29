@@ -2773,9 +2773,9 @@ void parsing_eapol_packet(_adapter *padapter, u8 *key_payload, struct sta_info *
 
 	if (!(key_info & WPA_KEY_INFO_KEY_TYPE)) { /* WPA group key handshake */
 		if (key_info & WPA_KEY_INFO_ACK) {
-			RTW_PRINT("%s eapol packet - WPA Group Key 1/2\n", trx_msg);
+			RTW_INFO("%s eapol packet - WPA Group Key 1/2\n", trx_msg);
 		} else {
-			RTW_PRINT("%s eapol packet - WPA Group Key 2/2\n", trx_msg);
+			RTW_INFO("%s eapol packet - WPA Group Key 2/2\n", trx_msg);
 
 			/* WPA key-handshake has completed */
 			if (psecuritypriv->ndisauthtype == Ndis802_11AuthModeWPAPSK)
@@ -2783,13 +2783,13 @@ void parsing_eapol_packet(_adapter *padapter, u8 *key_payload, struct sta_info *
 		}
 	} else if (key_info & WPA_KEY_INFO_MIC) {
 		if (key_data_length == 0)
-			RTW_PRINT("%s eapol packet 4/4\n", trx_msg);
+			RTW_INFO("%s eapol packet 4/4\n", trx_msg);
 		else if (key_info & WPA_KEY_INFO_ACK)
-			RTW_PRINT("%s eapol packet 3/4\n", trx_msg);
+			RTW_INFO("%s eapol packet 3/4\n", trx_msg);
 		else
-			RTW_PRINT("%s eapol packet 2/4\n", trx_msg);
+			RTW_INFO("%s eapol packet 2/4\n", trx_msg);
 	} else {
-		RTW_PRINT("%s eapol packet 1/4\n", trx_msg);
+		RTW_INFO("%s eapol packet 1/4\n", trx_msg);
 	}
 
 }

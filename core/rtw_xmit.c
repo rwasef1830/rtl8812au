@@ -974,6 +974,7 @@ static s32 update_attrib_sec_info(_adapter *padapter, struct pkt_attrib *pattrib
 	pattrib->mac_id = psta->cmn.mac_id;
 
 	if (psta->ieee8021x_blocked == _TRUE) {
+		RTW_INFO("%s %d Failed to update_attrib_sec_info: ieeee blocked - Crypto init blocked\n", __FUNCTION__, __LINE__);
 
 		pattrib->encrypt = 0;
 
@@ -1102,6 +1103,7 @@ static s32 update_attrib_sec_info(_adapter *padapter, struct pkt_attrib *pattrib
 
 exit:
 
+	RTW_INFO("%s: Returning %d\n", __FUNCTION__, res);
 	return res;
 
 }
@@ -1508,8 +1510,10 @@ get_sta_info:
 			}
 		}
 
-	} else if (0x888e == pattrib->ether_type)
+	} else if (0x888e == pattrib->ether_type) {
+		RTW_INFO("%s Parsing EAPOL", __FUNCTION__);
 		parsing_eapol_packet(padapter, pktfile.cur_addr, psta, 1);
+	}
 #if defined (DBG_ARP_DUMP) || defined (DBG_IP_R_MONITOR)
 	else if (pattrib->ether_type == ETH_P_ARP) {
 		u8 arp[28] = {0};

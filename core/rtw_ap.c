@@ -1087,11 +1087,13 @@ void update_sta_info_apmode(_adapter *padapter, struct sta_info *psta)
 
 	/*alloc macid when call rtw_alloc_stainfo(),release macid when call rtw_free_stainfo()*/
 
-	if (!MLME_IS_MESH(padapter) && psecuritypriv->dot11AuthAlgrthm == dot11AuthAlgrthm_8021X)
+	if (!MLME_IS_MESH(padapter) && psecuritypriv->dot11AuthAlgrthm == dot11AuthAlgrthm_8021X) {
+		RTW_INFO("%s BLOCKED NOT IS_MESH\n", __FUNCTION__);
 		psta->ieee8021x_blocked = _TRUE;
-	else
+	}
+	else {
 		psta->ieee8021x_blocked = _FALSE;
-
+	}
 
 	/* update sta's cap */
 

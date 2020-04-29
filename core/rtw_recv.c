@@ -2713,6 +2713,8 @@ static int rtw_recv_indicatepkt_check(union recv_frame *rframe, u8 *ehdr_pos, u3
 	struct wlan_network *cur_network = &(pmlmepriv->cur_network);
 #endif/*DBG_IP_R_MONITOR*/
 	int ret = _FAIL;
+	
+	RTW_INFO("%s Checking packet: ethernet header: 0x%04x", __FUNCTION__, ntohs(ehdr->h_proto));
 
 #ifdef CONFIG_WAPI_SUPPORT
 	if (rtw_wapi_check_for_drop(adapter, rframe, ehdr_pos)) {
@@ -2728,6 +2730,7 @@ static int rtw_recv_indicatepkt_check(union recv_frame *rframe, u8 *ehdr_pos, u3
 		rtw_st_ctl_rx(rframe->u.hdr.psta, ehdr_pos);
 
 	if (ntohs(ehdr->h_proto) == 0x888e)
+		RTW_INFO("%s Parsing EAPOL", __FUNCTION__);
 		parsing_eapol_packet(adapter, ehdr_pos + ETH_HLEN, rframe->u.hdr.psta, 0);
 #ifdef DBG_ARP_DUMP
 	else if (ntohs(ehdr->h_proto) == ETH_P_ARP)

@@ -2015,6 +2015,7 @@ static struct sta_info *rtw_joinbss_update_stainfo(_adapter *padapter, struct wl
 					psta->flags |= WLAN_STA_MFP;
 			}
 
+			RTW_ERR("%s: BLOCKING %d\n", __FUNCTION__, __LINE__);
 			psta->ieee8021x_blocked = _TRUE;
 			psta->dot118021XPrivacy = padapter->securitypriv.dot11PrivacyAlgrthm;
 
@@ -2027,6 +2028,7 @@ static struct sta_info *rtw_joinbss_update_stainfo(_adapter *padapter, struct wl
 		/*	When doing the WPS, the wps_ie_len won't equal to 0 */
 		/*	And the Wi-Fi driver shouldn't allow the data packet to be tramsmitted. */
 		if (padapter->securitypriv.wps_ie_len != 0) {
+			RTW_ERR("%s: BLOCKING BY ALBERT WPS IE %d\n", __FUNCTION__, __LINE__);
 			psta->ieee8021x_blocked = _TRUE;
 			padapter->securitypriv.wps_ie_len = 0;
 		}
@@ -2631,6 +2633,7 @@ void rtw_ft_update_stainfo(_adapter *padapter, WLAN_BSSID_EX *pnetwork)
 		padapter->securitypriv.busetkipkey = _FALSE;
 		padapter->securitypriv.bgrpkey_handshake = _FALSE;
 
+		RTW_ERR("%s: BLOCKING %d\n", __FUNCTION__, __LINE__);
 		psta->ieee8021x_blocked = _TRUE;
 		psta->dot118021XPrivacy = padapter->securitypriv.dot11PrivacyAlgrthm;
 

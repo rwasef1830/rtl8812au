@@ -4671,9 +4671,9 @@ s32 rtw_xmit_posthandle(_adapter *padapter, struct xmit_frame *pxmitframe, _pkt 
 #endif
 	if (res == _FAIL) {
 		/*RTW_INFO("%s-"ADPT_FMT" update attrib fail\n", __func__, ADPT_ARG(padapter));*/
-#ifdef DBG_TX_DROP_FRAME
+//#ifdef DBG_TX_DROP_FRAME
 		RTW_INFO("DBG_TX_DROP_FRAME %s update attrib fail\n", __FUNCTION__);
-#endif
+//#endif
 		rtw_free_xmitframe(pxmitpriv, pxmitframe);
 		return -1;
 	}
@@ -4721,11 +4721,15 @@ s32 rtw_xmit(_adapter *padapter, _pkt **ppkt)
 
 	DBG_COUNTER(padapter->tx_logs.core_tx);
 
-	if (IS_CH_WAITING(adapter_to_rfctl(padapter)))
+	if (IS_CH_WAITING(adapter_to_rfctl(padapter))) {
+		RTW_INFO("%s IS_CH_WAITING returned false; returning -1\n", __FUNCTION__);
 		return -1;
+	}
 
-	if (rtw_linked_check(padapter) == _FALSE)
+	if (rtw_linked_check(padapter) == _FALSE) {
+		RTW_INFO("%s rtw_linked_check %s returned false; returning -1\n", __FUNCTION__, padapter->old_ifname);
 		return -1;
+	}
 
 	if (start == 0)
 		start = rtw_get_current_time();
@@ -4741,7 +4745,7 @@ s32 rtw_xmit(_adapter *padapter, _pkt **ppkt)
 
 	if (pxmitframe == NULL) {
 		drop_cnt++;
-		/*RTW_INFO("%s-"ADPT_FMT" no more xmitframe\n", __func__, ADPT_ARG(padapter));*/
+		RTW_INFO("%s-"ADPT_FMT" no more xmitframe\n", __func__, ADPT_ARG(padapter));
 		DBG_COUNTER(padapter->tx_logs.core_tx_err_pxmitframe);
 		return -1;
 	}
@@ -4761,6 +4765,7 @@ s32 rtw_xmit(_adapter *padapter, _pkt **ppkt)
 		if (br_port) {
 			res = rtw_br_client_tx(padapter, ppkt);
 			if (res == -1) {
+				RTW_INFO("%s BR_EXT IS TRUE: rtw_br_client_tx returned -1, returning -1\n", __FUNCTION__);
 				rtw_free_xmitframe(pxmitpriv, pxmitframe);
 				DBG_COUNTER(padapter->tx_logs.core_tx_err_brtx);
 				return -1;
@@ -4774,6 +4779,7 @@ s32 rtw_xmit(_adapter *padapter, _pkt **ppkt)
 		_list b2u_list;
 
 		res = rtw_mesh_addr_resolve(padapter, pxmitframe, *ppkt, &b2u_list);
+		RTW_INFO("%s rtw_mesh_addr_resolve returning %d\n", __FUNCTION__, res);
 		if (res == RTW_RA_RESOLVING)
 			return 1;
 		if (res == _FAIL)
@@ -4811,7 +4817,13 @@ s32 rtw_xmit(_adapter *padapter, _pkt **ppkt)
 
 	pxmitframe->pkt = NULL; /* let rtw_xmit_posthandle not to free pkt inside */
 	res = rtw_xmit_posthandle(padapter, pxmitframe, *ppkt);
+	if (res != 0) {
+		RTW_INFO("%s rtw_xmit_posthandle returning %d\n", __FUNCTION__, res);
+	}
 
+	if (res != 0) {
+		RTW_INFO("%s last case returning %d\n", __FUNCTION__, res);
+	}
 	return res;
 }
 

@@ -2277,6 +2277,8 @@ unsigned int OnAuth(_adapter *padapter, union recv_frame *precv_frame)
 
 	/* Now, we are going to issue_auth... */
 	pstat->auth_seq = seq + 1;
+	
+	RTW_INFO("GOING TO ISSUE AUTH\n");
 
 #ifdef CONFIG_NATIVEAP_MLME
 	issue_auth(padapter, pstat, (unsigned short)(_STATS_SUCCESSFUL_));
@@ -2289,7 +2291,7 @@ unsigned int OnAuth(_adapter *padapter, union recv_frame *precv_frame)
 	return _SUCCESS;
 
 auth_fail:
-
+	RTW_INFO("JUMPED TO AUTH FAIL\n");
 	if (pstat)
 		rtw_free_stainfo(padapter , pstat);
 
@@ -2510,6 +2512,8 @@ unsigned int OnAssocReq(_adapter *padapter, union recv_frame *precv_frame)
 		goto OnAssocReqFail;
 	}
 
+	RTW_INFO("%s going to parse ie elements\n", __FUNCTION__);
+
 	/* now parse all ieee802_11 ie to point to elems */
 	left = pkt_len - (IEEE80211_3ADDR_LEN + ie_offset);
 	pos = pframe + (IEEE80211_3ADDR_LEN + ie_offset);
@@ -2544,6 +2548,7 @@ unsigned int OnAssocReq(_adapter *padapter, union recv_frame *precv_frame)
 		|| elems.ssid_len != cur->Ssid.SsidLength
 		|| _rtw_memcmp(elems.ssid, cur->Ssid.Ssid, cur->Ssid.SsidLength) == _FALSE
 	) {
+		RTW_INFO("%s SSID INVALID\n", __FUNCTION__);
 		status = _STATS_FAILURE_;
 		goto OnAssocReqFail;
 	}
@@ -2551,13 +2556,17 @@ unsigned int OnAssocReq(_adapter *padapter, union recv_frame *precv_frame)
 	/* (Extended) Supported rates */
 	status = rtw_ap_parse_sta_supported_rates(padapter, pstat
 		, pframe + WLAN_HDR_A3_LEN + ie_offset, pkt_len - WLAN_HDR_A3_LEN - ie_offset);
-	if (status != _STATS_SUCCESSFUL_)
+	if (status != _STATS_SUCCESSFUL_) {
+		RTW_INFO("%s FAILED TO PARSE SUPPORTED RATES\n", __FUNCTION__);
 		goto OnAssocReqFail;
+	}
 
 	/* check RSN/WPA/WPS */
 	status = rtw_ap_parse_sta_security_ie(padapter, pstat, &elems);
-	if (status != _STATS_SUCCESSFUL_)
+	if (status != _STATS_SUCCESSFUL_) {
+		RTW_INFO("%s FAILED TO PARSE SECURITY IE\n", __FUNCTION__);
 		goto OnAssocReqFail;
+	}
 
 	/* check if there is WMM IE & support WWM-PS */
 	rtw_ap_parse_sta_wmm_ie(padapter, pstat
@@ -2584,6 +2593,8 @@ unsigned int OnAssocReq(_adapter *padapter, union recv_frame *precv_frame)
 		  * goto OnAssocReqFail;
 		*/
 	}
+	
+	RTW_INFO("%s STATUS: %d\n", __FUNCTION__, status);
 
 	if (status != _STATS_SUCCESSFUL_)
 		goto OnAssocReqFail;
@@ -2637,8 +2648,7 @@ unsigned int OnAssocReq(_adapter *padapter, union recv_frame *precv_frame)
 
 	pstat->state &= (~WIFI_FW_ASSOC_STATE);
 	pstat->state |= WIFI_FW_ASSOC_SUCCESS;
-	/* RTW_INFO("==================%s, %d,  (%x), bpairwise_key_installed=%d, MAC:"MAC_FMT"\n"
-	, __func__, __LINE__, pstat->state, pstat->bpairwise_key_installed, MAC_ARG(pstat->cmn.mac_addr)); */
+	RTW_INFO("==================%s, %d,  (%x), bpairwise_key_installed=%d, MAC:"MAC_FMT"\n", __func__, __LINE__, pstat->state, pstat->bpairwise_key_installed, MAC_ARG(pstat->cmn.mac_addr));
 #ifdef CONFIG_IEEE80211W
 	if (pstat->bpairwise_key_installed != _TRUE)
 #endif /* CONFIG_IEEE80211W */
@@ -2661,6 +2671,7 @@ unsigned int OnAssocReq(_adapter *padapter, union recv_frame *precv_frame)
 
 	/* now the station is qualified to join our BSS...	 */
 	if (pstat && (pstat->state & WIFI_FW_ASSOC_SUCCESS) && (_STATS_SUCCESSFUL_ == status)) {
+		RTW_INFO("%s QUALIFIED TO JOIN\n", __FUNCTION__);
 #ifdef CONFIG_NATIVEAP_MLME
 #ifdef CONFIG_IEEE80211W
 		if (pstat->bpairwise_key_installed != _TRUE)
@@ -2675,6 +2686,7 @@ unsigned int OnAssocReq(_adapter *padapter, union recv_frame *precv_frame)
 			status = _STATS_REFUSED_TEMPORARILY_;
 #endif /* CONFIG_IEEE80211W */
 		/* .2 issue assoc rsp before notify station join event. */
+		RTW_INFO("%s GOING TO SEND ASSOC RESP\n", __FUNCTION__);
 		if (frame_type == WIFI_ASSOCREQ)
 			issue_asocrsp(padapter, status, pstat, WIFI_ASSOCRSP);
 		else
@@ -2711,19 +2723,22 @@ unsigned int OnAssocReq(_adapter *padapter, union recv_frame *precv_frame)
 #endif /* CONFIG_NATIVEAP_MLME */
 	}
 
+	RTW_INFO("%s SUCCESS\n", __FUNCTION__);
 	return _SUCCESS;
 
 asoc_class2_error:
 
 #ifdef CONFIG_NATIVEAP_MLME
+	RTW_INFO("%s CLASS 2 ERROR - ISSUING DEAUTH\n", __FUNCTION__);
 	issue_deauth(padapter, (void *)get_addr2_ptr(pframe), status);
 #endif
 
+	RTW_INFO("%s FAIL\n", __FUNCTION__);
 	return _FAIL;
 
 OnAssocReqFail:
 
-
+	RTW_INFO("%s ASSOC_REQUEST_FAIL %d\n", __FUNCTION__, status);
 #ifdef CONFIG_NATIVEAP_MLME
 	pstat->cmn.aid = 0;
 	if (frame_type == WIFI_ASSOCREQ)
@@ -2734,7 +2749,7 @@ OnAssocReqFail:
 
 
 #endif /* CONFIG_AP_MODE */
-
+	RTW_INFO("%s FAIL\n", __FUNCTION__);
 	return _FAIL;
 
 }
@@ -7623,6 +7638,7 @@ void update_mgntframe_attrib_addr(_adapter *padapter, struct xmit_frame *pmgntfr
 void dump_mgntframe(_adapter *padapter, struct xmit_frame *pmgntframe)
 {
 	if (RTW_CANNOT_RUN(padapter)) {
+		RTW_INFO("RTW_CANNOT_RUN\n");
 		rtw_free_xmitbuf(&padapter->xmitpriv, pmgntframe->pxmitbuf);
 		rtw_free_xmitframe(&padapter->xmitpriv, pmgntframe);
 		return;
@@ -8677,7 +8693,7 @@ void issue_auth(_adapter *padapter, struct sta_info *psta, unsigned short status
 	pattrib->last_txcmdsz = pattrib->pktlen;
 
 	rtw_wep_encrypt(padapter, (u8 *)pmgntframe);
-	RTW_INFO("%s\n", __FUNCTION__);
+	RTW_INFO("%s %d\n", __FUNCTION__, status);
 	dump_mgntframe(padapter, pmgntframe);
 
 	return;
@@ -8710,11 +8726,14 @@ void issue_asocrsp(_adapter *padapter, unsigned short status, struct sta_info *p
 	if (rtw_rfctl_is_tx_blocked_by_ch_waiting(adapter_to_rfctl(padapter)))
 		return;
 
-	RTW_INFO("%s\n", __FUNCTION__);
+	RTW_INFO("%s %d\n", __FUNCTION__, status);
 
 	pmgntframe = alloc_mgtxmitframe(pxmitpriv);
 	if (pmgntframe == NULL)
+	{
+		RTW_INFO("%s FAILED TO ALLOC RESPONSE TX FRAME\n", __FUNCTION__);
 		return;
+	}
 
 	/* update attribute */
 	pattrib = &pmgntframe->attrib;
@@ -8905,6 +8924,7 @@ void issue_asocrsp(_adapter *padapter, unsigned short status, struct sta_info *p
 
 	pattrib->last_txcmdsz = pattrib->pktlen;
 
+	RTW_INFO("%s Sending response frame\n", __FUNCTION__);
 	dump_mgntframe(padapter, pmgntframe);
 
 #endif

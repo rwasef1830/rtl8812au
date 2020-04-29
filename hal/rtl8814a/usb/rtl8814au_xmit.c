@@ -388,7 +388,7 @@ static s32 rtw_dump_xframe(_adapter *padapter, struct xmit_frame *pxmitframe)
 #endif /* CONFIG_80211N_HT */
 	mem_addr = pxmitframe->buf_addr;
 
-	/* RTW_INFO("rtw_dump_xframe()\n"); */
+	RTW_INFO("rtw_dump_xframe()\n");
 
 	for (t = 0; t < pattrib->nr_frags; t++) {
 		if (inner_ret != _SUCCESS && ret == _SUCCESS)

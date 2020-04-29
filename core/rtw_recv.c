@@ -2771,10 +2771,13 @@ static int rtw_recv_indicatepkt_check(union recv_frame *rframe, u8 *ehdr_pos, u3
 #endif/*DBG_IP_R_MONITOR*/
 
 #ifdef CONFIG_AUTO_AP_MODE
-	if (ntohs(ehdr->h_proto) == 0x8899)
+	if (ntohs(ehdr->h_proto) == 0x8899) {
+		RTW_INFO("%s auto ap rx msg dump\n", __FUNCTION__);
 		rtw_auto_ap_rx_msg_dump(adapter, rframe, ehdr_pos);
+	}
 #endif
 
+	RTW_INFO("%s SUCCESS\n", __FUNCTION__);
 	ret = _SUCCESS;
 
 #ifdef CONFIG_WAPI_SUPPORT

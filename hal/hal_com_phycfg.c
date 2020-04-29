@@ -2454,7 +2454,7 @@ u8 phy_get_pg_txpwr_idx(
 
 	*bIn24G = phy_GetChnlIndex(Channel, &chnlIdx);
 
-	if (0)
+	if (1)
 		RTW_INFO("[%s] Channel Index: %d\n", (*bIn24G ? "2.4G" : "5G"), chnlIdx);
 
 	if (*bIn24G) {

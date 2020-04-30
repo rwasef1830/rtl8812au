@@ -2686,7 +2686,11 @@ unsigned int OnAssocReq(_adapter *padapter, union recv_frame *precv_frame)
 			status = _STATS_REFUSED_TEMPORARILY_;
 #endif /* CONFIG_IEEE80211W */
 		/* .2 issue assoc rsp before notify station join event. */
-		RTW_INFO("%s GOING TO SEND ASSOC RESP\n", __FUNCTION__);
+		RTW_INFO("%s GOING TO SEND ASSOC RESP: STATUS %d\n", __FUNCTION__, status);
+		RTW_INFO("%s CURRENT STATUS CODE IN RESPONSE PSTAT FRAME %d\n", __FUNCTION__, le16_to_cpu(((struct ieee80211_mgmt *)pframe)->u.assoc_resp.status_code));
+		RTW_INFO("%s: HACKING STATUS CODE IN PFRAME TO ZERO\n", __FUNCTION__);
+		((struct ieee80211_mgmt *)pframe)->u.assoc_resp.status_code = (u16)0;
+		
 		if (frame_type == WIFI_ASSOCREQ)
 			issue_asocrsp(padapter, status, pstat, WIFI_ASSOCRSP);
 		else
@@ -2702,6 +2706,8 @@ unsigned int OnAssocReq(_adapter *padapter, union recv_frame *precv_frame)
 
 		pstat->passoc_req =  rtw_zmalloc(pkt_len);
 		if (pstat->passoc_req) {
+			u16 status_code = le16_to_cpu(((struct ieee80211_mgmt *)pframe)->u.assoc_resp.status_code);
+			RTW_INFO("%s: STATUS CODE IN PFRAME: %d\n", __FUNCTION__, status_code);
 			_rtw_memcpy(pstat->passoc_req, pframe, pkt_len);
 			pstat->assoc_req_len = pkt_len;
 		}
@@ -9755,7 +9761,7 @@ static int _issue_deauth(_adapter *padapter, unsigned char *da, unsigned short r
 	struct wifidirect_info *pwdinfo = &(padapter->wdinfo);
 #endif /* CONFIG_P2P	 */
 
-	/* RTW_INFO("%s to "MAC_FMT"\n", __func__, MAC_ARG(da)); */
+	RTW_INFO("%s to "MAC_FMT"\n", __func__, MAC_ARG(da));
 
 #ifdef CONFIG_P2P
 	if (!(rtw_p2p_chk_state(pwdinfo, P2P_STATE_NONE)) && (pwdinfo->rx_invitereq_info.scan_op_ch_only)) {
@@ -9834,6 +9840,8 @@ int issue_deauth_11w(_adapter *padapter, unsigned char *da, unsigned short reaso
 int issue_deauth_ex(_adapter *padapter, u8 *da, unsigned short reason, int try_cnt,
 		    int wait_ms)
 {
+	RTW_INFO("%s to "MAC_FMT"\n", __func__, MAC_ARG(da));
+	
 	int ret = _FAIL;
 	int i = 0;
 	systime start = rtw_get_current_time();

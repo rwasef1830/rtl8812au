@@ -2452,8 +2452,20 @@ void rtw_stassoc_event_callback(_adapter *adapter, u8 *pbuf)
 		if (psta) {
 			u8 *passoc_req = NULL;
 			u32 assoc_req_len = 0;
+			
+			if (psta->passoc_req && psta->assoc_req_len > 0) {
+				struct ieee80211_mgmt *mgmt = (struct ieee80211_mgmt *)psta->passoc_req;
+				u16 status_code = le16_to_cpu(mgmt->u.assoc_resp.status_code);
+				RTW_INFO("%s: STATUS CODE AFTER GET_STAINFO: %d\n", __FUNCTION__, status_code);
+			}
 
 			rtw_sta_media_status_rpt(adapter, psta, 1);
+			
+			if (psta->passoc_req && psta->assoc_req_len > 0) {
+				struct ieee80211_mgmt *mgmt = (struct ieee80211_mgmt *)psta->passoc_req;
+				u16 status_code = le16_to_cpu(mgmt->u.assoc_resp.status_code);
+				RTW_INFO("%s: STATUS CODE AFTER MEDIA STATUS RPT: %d\n", __FUNCTION__, status_code);
+			}
 
 #ifdef CONFIG_MCC_MODE
 			rtw_hal_mcc_update_macid_bitmap(adapter, psta->cmn.mac_id, _TRUE);
@@ -2461,6 +2473,12 @@ void rtw_stassoc_event_callback(_adapter *adapter, u8 *pbuf)
 
 #ifndef CONFIG_AUTO_AP_MODE
 			ap_sta_info_defer_update(adapter, psta);
+			
+			if (psta->passoc_req && psta->assoc_req_len > 0) {
+				struct ieee80211_mgmt *mgmt = (struct ieee80211_mgmt *)psta->passoc_req;
+				u16 status_code = le16_to_cpu(mgmt->u.assoc_resp.status_code);
+				RTW_INFO("%s: STATUS CODE AFTER DEFER UPDATE: %d\n", __FUNCTION__, status_code);
+			}
 
 			if (!MLME_IS_MESH(adapter)) {
 				/* report to upper layer */

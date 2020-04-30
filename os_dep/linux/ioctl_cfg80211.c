@@ -4301,6 +4301,10 @@ static int cfg80211_rtw_flush_pmksa(struct wiphy *wiphy,
 #ifdef CONFIG_AP_MODE
 void rtw_cfg80211_indicate_sta_assoc(_adapter *padapter, u8 *pmgmt_frame, uint frame_len)
 {
+	struct ieee80211_mgmt *mgmt = (struct ieee80211_mgmt *)pmgmt_frame;
+	u16 status_code = le16_to_cpu(mgmt->u.assoc_resp.status_code);
+	RTW_INFO("%s: STATUS CODE: %d\n", __FUNCTION__, status_code);
+	
 #if !defined(RTW_USE_CFG80211_STA_EVENT) && !defined(COMPAT_KERNEL_RELEASE)
 	s32 freq;
 	int channel;

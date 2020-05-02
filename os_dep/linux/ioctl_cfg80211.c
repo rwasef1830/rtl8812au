@@ -4325,7 +4325,7 @@ void rtw_cfg80211_indicate_sta_assoc(_adapter *padapter, u8 *pmgmt_frame, uint f
 			ie_offset = _REASOCREQ_IE_OFFSET_;
 
 		memset(&sinfo, 0, sizeof(sinfo));
-		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 2, 0))
+		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 2, 0)) || defined(CONFIG_HAVE_STATION_INFO_ASSOC_REQ_IES)
 		sinfo.filled = STATION_INFO_ASSOC_REQ_IES;
 		sinfo.assoc_req_ies = pmgmt_frame + WLAN_HDR_A3_LEN + ie_offset;
 		sinfo.assoc_req_ies_len = frame_len - WLAN_HDR_A3_LEN - ie_offset;

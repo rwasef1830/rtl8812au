@@ -8097,7 +8097,7 @@ u8 *rtw_cfg80211_construct_mesh_beacon_ies(struct wiphy *wiphy, _adapter *adapte
 	if (!ch)
 		goto exit;
 	
-#if defined(CONFIG_80211AC_VHT) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0))
+#if defined(CONFIG_80211AC_VHT) && ((LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0)) || defined(CONFIG_FORCE_VHT_COMPAT))
 	vht = ht && ch > 14 && bw >= CHANNEL_WIDTH_80; /* VHT40/VHT20? */
 #endif
 
@@ -8121,7 +8121,7 @@ u8 *rtw_cfg80211_construct_mesh_beacon_ies(struct wiphy *wiphy, _adapter *adapte
 		#if defined(CONFIG_80211N_HT)
 		+ (ht ? HT_CAP_IE_LEN + 2 + HT_OP_IE_LEN + 2 : 0) /* HT */
 		#endif
-		#if defined(CONFIG_80211AC_VHT) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0))
+		#if defined(CONFIG_80211AC_VHT) && ((LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0)) || defined(CONFIG_FORCE_VHT_COMPAT))
 		+ (vht ? VHT_CAP_IE_LEN + 2 + VHT_OP_IE_LEN + 2 : 0) /* VHT */
 		#endif
 		+ minfo->mesh_id_len + 2 /* Mesh ID */
@@ -8214,7 +8214,7 @@ u8 *rtw_cfg80211_construct_mesh_beacon_ies(struct wiphy *wiphy, _adapter *adapte
 	}
 #endif /* defined(CONFIG_80211N_HT) */
 
-#if defined(CONFIG_80211AC_VHT) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0))
+#if defined(CONFIG_80211AC_VHT) && ((LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0)) || defined(CONFIG_FORCE_VHT_COMPAT))
 	if (vht) {
 		struct ieee80211_sta_vht_cap *sta_vht_cap = &wiphy->bands[chan->band]->vht_cap;
 		u8 vht_cap[VHT_CAP_IE_LEN];
@@ -9293,7 +9293,7 @@ static void rtw_cfg80211_init_ht_capab(_adapter *padapter
 }
 #endif /* CONFIG_80211N_HT */
 
-#if defined(CONFIG_80211AC_VHT) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0))
+#if defined(CONFIG_80211AC_VHT) && ((LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0)) || defined(CONFIG_FORCE_VHT_COMPAT))
 static void rtw_cfg80211_init_vht_capab(_adapter *padapter
 	, struct ieee80211_sta_vht_cap *sta_vht_cap, BAND_TYPE band, u8 rf_type)
 {
@@ -9347,7 +9347,7 @@ void rtw_cfg80211_init_wiphy(_adapter *padapter)
 			#if defined(CONFIG_80211N_HT)
 			rtw_cfg80211_init_ht_capab(padapter, &band->ht_cap, BAND_ON_5G, rf_type);
 			#endif
-			#if defined(CONFIG_80211AC_VHT) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0))
+			#if defined(CONFIG_80211AC_VHT) && ((LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0)) || defined(CONFIG_FORCE_VHT_COMPAT))
 			rtw_cfg80211_init_vht_capab(padapter, &band->vht_cap, BAND_ON_5G, rf_type);
 			#endif
 		}

@@ -1558,16 +1558,6 @@ unsigned int rtw_classify8021d(struct sk_buff *skb)
 
 
 static u16 rtw_select_queue(struct net_device *dev, struct sk_buff *skb
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0)
-	#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0) || RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(8,0)
-	, struct net_device *sb_dev
-	#else
-	, void *accel_priv
-	#endif
-	#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0) & LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0)
-	, select_queue_fallback_t fallback
-	#endif
-#endif
 )
 {
 	_adapter	*padapter = rtw_netdev_priv(dev);
@@ -1757,7 +1747,7 @@ int rtw_init_netdev_name(struct net_device *pnetdev, const char *ifname)
 void rtw_hook_if_ops(struct net_device *ndev)
 {
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29))
-	ndev->netdev_ops = &rtw_netdev_ops;
+	netdev_attach_ops(ndev, &rtw_netdev_ops);
 #else
 	ndev->init = rtw_ndev_init;
 	ndev->uninit = rtw_ndev_uninit;
@@ -1803,23 +1793,14 @@ struct net_device *rtw_init_netdev(_adapter *old_padapter)
 
 #ifdef CONFIG_TCP_CSUM_OFFLOAD_TX
         pnetdev->features |= (NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 39)
-        pnetdev->hw_features |= (NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM);
-#endif
 #endif
 
 #ifdef CONFIG_RTW_NETIF_SG
         pnetdev->features |= NETIF_F_SG;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 39)
-        pnetdev->hw_features |= NETIF_F_SG;
-#endif
 #endif
 
 	if ((pnetdev->features & NETIF_F_SG) && (pnetdev->features & NETIF_F_IP_CSUM)) {
 		pnetdev->features |= (NETIF_F_TSO | NETIF_F_GSO);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 39)
-		pnetdev->hw_features |= (NETIF_F_TSO | NETIF_F_GSO);
-#endif
 	}
 	/* pnetdev->tx_timeout = NULL; */
 	pnetdev->watchdog_timeo = HZ * 3; /* 3 second timeout */
@@ -3032,8 +3013,8 @@ static int netdev_vir_if_close(struct net_device *pnetdev)
 #endif
 
 #ifdef CONFIG_IOCTL_CFG80211
-	wdev->iftype = NL80211_IFTYPE_MONITOR;
-	wdev->current_bss = NULL;
+	padapter->rtw_wdev->iftype = NL80211_IFTYPE_MONITOR;
+	padapter->rtw_wdev->current_bss = NULL;
 	rtw_scan_abort(padapter);
 	rtw_cfg80211_wait_scan_req_empty(padapter, 200);
 	adapter_wdev_data(padapter)->bandroid_scan = _FALSE;
@@ -3067,7 +3048,7 @@ static const struct net_device_ops rtw_netdev_vir_if_ops = {
 static void rtw_hook_vir_if_ops(struct net_device *ndev)
 {
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29))
-	ndev->netdev_ops = &rtw_netdev_vir_if_ops;
+	netdev_attach_ops(ndev, &rtw_netdev_vir_if_ops);
 #else
 	ndev->init = rtw_ndev_init;
 	ndev->uninit = rtw_ndev_uninit;

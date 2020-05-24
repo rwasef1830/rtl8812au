@@ -19,6 +19,9 @@
 #include "rtw_proc.h"
 #include <rtw_btcoex.h>
 
+#undef LINUX_VERSION_CODE
+#define LINUX_VERSION_CODE KERNEL_VERSION(2, 6, 36)
+
 #ifdef CONFIG_PROC_DEBUG
 
 static struct proc_dir_entry *rtw_proc = NULL;

@@ -43,7 +43,7 @@ CONFIG_TRAFFIC_PROTECT = n
 CONFIG_LOAD_PHY_PARA_FROM_FILE = y
 CONFIG_TXPWR_BY_RATE = y
 CONFIG_TXPWR_BY_RATE_EN = n
-CONFIG_TXPWR_LIMIT = y
+CONFIG_TXPWR_LIMIT = n
 CONFIG_TXPWR_LIMIT_EN = n
 CONFIG_RTW_CHPLAN = 0xFF
 CONFIG_RTW_ADAPTIVITY_EN = disable
@@ -55,8 +55,8 @@ CONFIG_BR_EXT = y
 CONFIG_TDLS = n
 CONFIG_WIFI_MONITOR = y
 CONFIG_DISABLE_REGD_C = y
-CONFIG_MCC_MODE = n
-CONFIG_APPEND_VENDOR_IE_ENABLE = n
+CONFIG_MCC_MODE = y
+CONFIG_APPEND_VENDOR_IE_ENABLE = y
 CONFIG_RTW_NAPI = y
 CONFIG_RTW_GRO = y
 CONFIG_RTW_NETIF_SG = y
@@ -176,7 +176,7 @@ ifeq ($(CONFIG_RTL8812AU), )
 ifneq (,$(findstring /usr/lib/dkms,$(PATH)))
     export TopDIR ?= $(shell pwd)
 else
-export TopDIR ?= $(srctree)/$(src)
+export TopDIR ?= $(backport_srctree)/$(src)
 endif
 endif
 
@@ -2298,12 +2298,12 @@ $(MODULE_NAME)-y += $(_BTC_FILES)
 $(MODULE_NAME)-y += $(_PLATFORM_FILES)
 
 $(MODULE_NAME)-$(CONFIG_MP_INCLUDED) += core/rtw_mp.o
-
-obj-$(CONFIG_88XXAU) := $(MODULE_NAME).o
+#
+obj-$(CPTCFG_88XXAU) := $(MODULE_NAME).o
 
 else
-
-export CONFIG_88XXAU = m
+#
+export CPTCFG_88XXAU = m
 
 all: modules
 

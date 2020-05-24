@@ -365,7 +365,7 @@ int hostapd_mode_init(_adapter *padapter)
 
 	RTW_INFO("register rtl871x_mgnt_netdev_ops to netdev_ops\n");
 
-	pnetdev->netdev_ops = &rtl871x_mgnt_netdev_ops;
+	netdev_attach_ops(pnetdev, &rtl871x_mgnt_netdev_ops);
 
 #else
 

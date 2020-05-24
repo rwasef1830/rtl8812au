@@ -895,6 +895,8 @@ void rtw_chset_sync_chbw(RT_CHANNEL_INFO *ch_set, u8 *req_ch, u8 *req_bw, u8 *re
 	u8 r_ch, r_bw, r_offset;
 	u8 u_ch, u_bw, u_offset;
 	u8 cur_bw = *req_bw;
+	
+	RTW_INFO("rtw_chset_sync_chbw: start: req_bw: %d g_bw: %d\n", *req_bw, *g_bw);
 
 	while (1) {
 		r_ch = *req_ch;
@@ -921,6 +923,8 @@ void rtw_chset_sync_chbw(RT_CHANNEL_INFO *ch_set, u8 *req_ch, u8 *req_bw, u8 *re
 	*g_ch = u_ch;
 	*g_bw = u_bw;
 	*g_offset = u_offset;
+	
+	RTW_INFO("rtw_chset_sync_chbw: end: req_bw: %d g_bw: %d\n", *req_bw, *g_bw);
 }
 
 /*

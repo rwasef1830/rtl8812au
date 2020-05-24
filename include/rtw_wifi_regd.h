@@ -16,6 +16,9 @@
 #ifndef __RTW_WIFI_REGD_H__
 #define __RTW_WIFI_REGD_H__
 
+#undef LINUX_VERSION_CODE
+#define LINUX_VERSION_CODE KERNEL_VERSION(3, 14, 0)
+
 struct country_code_to_enum_rd {
 	u16 countrycode;
 	const char *iso_name;

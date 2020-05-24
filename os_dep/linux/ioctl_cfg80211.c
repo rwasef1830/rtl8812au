@@ -14,6 +14,9 @@
  *****************************************************************************/
 #define  _IOCTL_CFG80211_C_
 
+#undef LINUX_VERSION_CODE
+#define LINUX_VERSION_CODE KERNEL_VERSION(3, 14, 0)
+
 #include <drv_types.h>
 #include <hal_data.h>
 
@@ -697,17 +700,9 @@ static int rtw_cfg80211_sync_iftype(_adapter *adapter)
 
 static u64 rtw_get_systime_us(void)
 {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 20, 0))
-	return ktime_to_us(ktime_get_boottime());
-#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 39))
-	struct timespec ts;
-	get_monotonic_boottime(&ts);
-	return ((u64)ts.tv_sec * 1000000) + ts.tv_nsec / 1000;
-#else
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	return ((u64)tv.tv_sec * 1000000) + tv.tv_usec;
-#endif
 }
 
 /* Try to remove non target BSS's SR to reduce PBC overlap rate */
@@ -4080,9 +4075,6 @@ static int cfg80211_rtw_disconnect(struct wiphy *wiphy, struct net_device *ndev,
 	RTW_INFO(FUNC_NDEV_FMT" - Start to Disconnect\n", FUNC_NDEV_ARG(ndev));
 
 #if (RTW_CFG80211_BLOCK_STA_DISCON_EVENT & RTW_CFG80211_BLOCK_DISCON_WHEN_DISCONNECT)
-	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0))
-	if (!wiphy->dev.power.is_prepared)
-	#endif
 		rtw_wdev_set_not_indic_disco(adapter_wdev_data(padapter), 1);
 #endif
 
@@ -4646,7 +4638,7 @@ static int rtw_cfg80211_add_monitor_if(_adapter *padapter, char *name, struct ne
 #endif
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29))
-	mon_ndev->netdev_ops = &rtw_cfg80211_monitor_if_ops;
+	netdev_attach_ops(mon_ndev, &rtw_cfg80211_monitor_if_ops);
 #else
 	mon_ndev->open = rtw_cfg80211_monitor_if_open;
 	mon_ndev->stop = rtw_cfg80211_monitor_if_close;

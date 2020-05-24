@@ -265,7 +265,7 @@ void rtl8814a_fill_txdesc_sectype(struct pkt_attrib *pattrib, u8 *ptxdesc);
 void rtl8814a_fill_txdesc_vcs(PADAPTER padapter, struct pkt_attrib *pattrib, u8 *ptxdesc);
 void rtl8814a_fill_txdesc_phy(PADAPTER padapter, struct pkt_attrib *pattrib, u8 *ptxdesc);
 #if defined(CONFIG_CONCURRENT_MODE)
-	void rtl8812a_fill_txdesc_force_bmc_camid(struct pkt_attrib *pattrib, u8 *ptxdesc);
+	void rtl8814a_fill_txdesc_force_bmc_camid(struct pkt_attrib *pattrib, u8 *ptxdesc);
 #endif
 void rtl8814a_fill_txdesc_bmc_tx_rate(struct pkt_attrib *pattrib, u8 *ptxdesc);
 
